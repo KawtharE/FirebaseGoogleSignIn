@@ -10,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -25,11 +24,16 @@ import com.example.firebasegooglesignin.presentation.sign_in.SignInScreen
 import com.example.firebasegooglesignin.presentation.sign_in.SignInViewModel
 import com.example.firebasegooglesignin.presentation.sign_in.utils.prepareIntentForSignIn
 import com.example.firebasegooglesignin.presentation.sign_in.utils.signIn
+import com.example.firebasegooglesignin.presentation.utils.UiState
 import com.example.firebasegooglesignin.ui.theme.FirebaseGoogleSignInTheme
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    private val auth by lazy { Firebase.auth }
 
     private val googleSignInClient by lazy {
         Identity.getSignInClient(applicationContext)
@@ -56,7 +60,8 @@ class MainActivity : ComponentActivity() {
                                 if (activityResult.resultCode == RESULT_OK) {
                                     lifecycleScope.launch {
                                         val signInResult = googleSignInClient.signIn(
-                                            intent = activityResult.data ?: return@launch
+                                            intent = activityResult.data ?: return@launch,
+                                            auth = auth
                                         )
                                         viewModel.onSignInCallback(signInResult)
                                     }
@@ -91,18 +96,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    FirebaseGoogleSignInTheme {
-        Greeting("Android")
-    }
+fun SignInPreview() {
+    SignInScreen(
+        state = UiState.SignInState(true, null)
+    ) {}
 }

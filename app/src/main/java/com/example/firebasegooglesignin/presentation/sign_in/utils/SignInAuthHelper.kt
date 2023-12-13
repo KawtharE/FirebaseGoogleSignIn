@@ -9,15 +9,13 @@ import com.example.firebasegooglesignin.usecase.model.User
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 import java.util.concurrent.CancellationException
 
 
-private val auth = Firebase.auth
 suspend fun SignInClient?.prepareIntentForSignIn(context: Context): IntentSender? {
     val result = try {
         this?.beginSignIn(
@@ -31,7 +29,7 @@ suspend fun SignInClient?.prepareIntentForSignIn(context: Context): IntentSender
     return result?.pendingIntent?.intentSender
 }
 
-suspend fun SignInClient?.signIn(intent: Intent): SignInResult {
+suspend fun SignInClient?.signIn(intent: Intent, auth: FirebaseAuth): SignInResult {
     val credential = this?.getSignInCredentialFromIntent(intent)
     val googleIdToken = credential?.googleIdToken
     val googleCredentials = GoogleAuthProvider.getCredential(googleIdToken, null)
@@ -57,7 +55,7 @@ suspend fun SignInClient?.signIn(intent: Intent): SignInResult {
     }
 }
 
-suspend fun SignInClient?.signOut() {
+suspend fun SignInClient?.signOut(auth: FirebaseAuth) {
     try {
         this?.signOut()?.await()
         auth.signOut()
@@ -67,7 +65,7 @@ suspend fun SignInClient?.signOut() {
     }
 }
 
-fun getSignedInUser(): User? {
+fun getSignedInUser(auth: FirebaseAuth): User? {
     return auth.currentUser?.run {
         User(
             userId = uid,
