@@ -20,11 +20,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.firebasegooglesignin.presentation.profile.ProfileScreen
 import com.example.firebasegooglesignin.presentation.sign_in.SignInScreen
 import com.example.firebasegooglesignin.presentation.sign_in.SignInViewModel
-import com.example.firebasegooglesignin.presentation.sign_in.utils.prepareIntentForSignIn
-import com.example.firebasegooglesignin.presentation.sign_in.utils.signIn
+import com.example.firebasegooglesignin.presentation.utils.prepareIntentForSignIn
+import com.example.firebasegooglesignin.presentation.utils.signIn
 import com.example.firebasegooglesignin.presentation.utils.UiState
+import com.example.firebasegooglesignin.presentation.utils.getSignedInUser
+import com.example.firebasegooglesignin.presentation.utils.signOut
 import com.example.firebasegooglesignin.ui.theme.FirebaseGoogleSignInTheme
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.ktx.auth
@@ -54,6 +57,12 @@ class MainActivity : ComponentActivity() {
                             val viewModel = viewModel<SignInViewModel>()
                             val state = viewModel.signInUiState.collectAsStateWithLifecycle()
 
+                            LaunchedEffect(key1 = Unit) {
+                                if (getSignedInUser(auth) != null) {
+                                    navController.navigate("profile")
+                                }
+                            }
+
                             val launcher = rememberLauncherForActivityResult(
                                 contract = ActivityResultContracts.StartIntentSenderForResult()
                             ) { activityResult ->
@@ -75,6 +84,11 @@ class MainActivity : ComponentActivity() {
                                         "Sign in success!",
                                         Toast.LENGTH_LONG
                                     ).show()
+                                    navController.navigate("profile") {
+                                        launchSingleTop =
+                                            true // navigate to "profile" only if we’re not already on
+                                    }
+                                    viewModel.resetUiState()
                                 }
                             }
                             SignInScreen(state = state.value) {
@@ -86,6 +100,21 @@ class MainActivity : ComponentActivity() {
                                             signInIntentSender ?: return@launch
                                         ).build()
                                     )
+                                }
+                            }
+                        }
+                        composable("profile") {
+                            ProfileScreen(
+                                user = getSignedInUser(auth)
+                            ) {
+                                lifecycleScope.launch {
+                                    googleSignInClient.signOut(auth)
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Signed out",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    navController.popBackStack()
                                 }
                             }
                         }

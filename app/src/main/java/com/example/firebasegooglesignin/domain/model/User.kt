@@ -1,4 +1,4 @@
-package com.example.firebasegooglesignin.usecase.model
+package com.example.firebasegooglesignin.domain.model
 
 data class User(
     val userId: String,

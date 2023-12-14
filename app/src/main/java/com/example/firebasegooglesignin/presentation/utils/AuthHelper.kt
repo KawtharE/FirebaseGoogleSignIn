@@ -1,11 +1,11 @@
-package com.example.firebasegooglesignin.presentation.sign_in.utils
+package com.example.firebasegooglesignin.presentation.utils
 
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import com.example.firebasegooglesignin.R
-import com.example.firebasegooglesignin.usecase.model.SignInResult
-import com.example.firebasegooglesignin.usecase.model.User
+import com.example.firebasegooglesignin.domain.model.SignInResult
+import com.example.firebasegooglesignin.domain.model.User
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.SignInClient
